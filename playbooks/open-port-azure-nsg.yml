@@ -8,15 +8,15 @@
     - azure.azcollection
 
   vars:
-    # Resource Group (doit correspondre à create-public-vm-azure.yml)
+    # Resource Group
     rg_name: Groupe5ResourceGroup
     rg_location: westeurope
     
-    # Virtual Network / Subnet (doit correspondre à create-public-vm-azure.yml)
+    # Virtual Network / Subnet
     vnet_name: Groupe5VNet
     subnet_name: Groupe5Subnet
     
-    # Network Interface (doit correspondre à create-public-vm-azure.yml)
+    # Network Interface
     nic_name: Groupe5NIC
     ipconfig_name: ipconfig1
     public_ip_name: Groupe5PublicIP
@@ -28,7 +28,7 @@
     nsg_rule_priority: 1000
 
   tasks:
-    # 1. Création ou mise à jour du NSG avec la règle pour le port {{ app_port }}
+    # 1. Création ou mise à jour du NSG
     - name: Création du NSG avec la règle pour le port {{ app_port }}
       azure_rm_securitygroup:
         resource_group: "{{ rg_name }}"
@@ -47,13 +47,14 @@
       register: nsg_result
 
     # 2. Association du NSG à la NIC
+    # CORRECTION ICI : Utilisation de 'security_group' au lieu de 'network_security_group'
     - name: Association du NSG à la Network Interface
       azure_rm_networkinterface:
         resource_group: "{{ rg_name }}"
         name: "{{ nic_name }}"
         virtual_network: "{{ vnet_name }}"
         subnet_name: "{{ subnet_name }}"
-        network_security_group: "{{ nsg_name }}"
+        security_group: "{{ nsg_name }}"      # <--- Paramètre corrigé
         ip_configurations:
           - name: "{{ ipconfig_name }}"
             public_ip_address_name: "{{ public_ip_name }}"
@@ -64,10 +65,9 @@
     - name: Récupération de l'IP publique
       azure_rm_publicipaddress_info:
         resource_group: "{{ rg_name }}"
-        name: Groupe5PublicIP
+        name: "{{ public_ip_name }}"
       register: public_ip_info
 
     - name: Message de succès
       debug:
         msg: "✅ Le port {{ app_port }} est maintenant ouvert. L'application est accessible sur http://{{ public_ip_info.publicipaddresses[0].ip_address }}:{{ app_port }}"
-
