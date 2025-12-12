@@ -1,0 +1,88 @@
+---
+- name: Ouverture du port pour l'application sur Azure NSG
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  collections:
+    - azure.azcollection
+
+  vars:
+    # Resource Group (doit correspondre à create-public-vm-azure.yml)
+    rg_name: Groupe5ResourceGroup
+    rg_location: westeurope
+    
+    # Network Interface (doit correspondre à create-public-vm-azure.yml)
+    nic_name: Groupe5NIC
+    
+    # Port à ouvrir
+    app_port: 8080
+    nsg_rule_name: "AllowHTTPPort{{ app_port }}"
+    nsg_rule_priority: 1000
+
+  tasks:
+    # 1. Récupération de la Network Interface pour trouver le NSG
+    - name: Récupération de la Network Interface
+      azure_rm_networkinterface_info:
+        resource_group: "{{ rg_name }}"
+        name: "{{ nic_name }}"
+      register: nic_info
+
+    # 2. Vérification si un NSG est associé
+    - name: Vérification du NSG associé
+      debug:
+        msg: "NSG trouvé : {{ nic_info.interfaces[0].network_security_group.id | default('Aucun NSG trouvé') }}"
+      when: nic_info.interfaces | length > 0
+
+    # 3. Détermination du NSG à utiliser
+    - name: Définition du nom du NSG
+      set_fact:
+        nsg_name: "{{ nic_info.interfaces[0].network_security_group.name if (nic_info.interfaces | length > 0 and nic_info.interfaces[0].network_security_group is defined) else (nic_name + '-nsg') }}"
+
+    # 4. Création du NSG si absent
+    - name: Création du NSG si absent
+      azure_rm_securitygroup:
+        resource_group: "{{ rg_name }}"
+        name: "{{ nsg_name }}"
+        location: "{{ rg_location }}"
+      register: nsg_created
+      when: nic_info.interfaces | length == 0 or nic_info.interfaces[0].network_security_group is not defined
+
+    # 5. Association du NSG à la NIC si nécessaire
+    - name: Association du NSG à la Network Interface
+      azure_rm_networkinterface:
+        resource_group: "{{ rg_name }}"
+        name: "{{ nic_name }}"
+        network_security_group: "{{ nsg_name }}"
+        state: present
+      when: nsg_created is defined and nsg_created.changed
+
+    # 6. Ajout de la règle de sécurité pour le port de l'application
+    - name: Ajout de la règle de sécurité pour le port {{ app_port }}
+      azure_rm_securityrule:
+        resource_group: "{{ rg_name }}"
+        security_group_name: "{{ nsg_name }}"
+        name: "{{ nsg_rule_name }}"
+        protocol: Tcp
+        source_port_ranges:
+          - "*"
+        destination_port_ranges:
+          - "{{ app_port }}"
+        source_address_prefix: "*"
+        destination_address_prefix: "*"
+        access: Allow
+        priority: "{{ nsg_rule_priority }}"
+        direction: Inbound
+        state: present
+
+    # 7. Récupération de l'IP publique pour affichage
+    - name: Récupération de l'IP publique
+      azure_rm_publicipaddress_info:
+        resource_group: "{{ rg_name }}"
+        name: Groupe5PublicIP
+      register: public_ip_info
+
+    - name: Message de succès
+      debug:
+        msg: "✅ Le port {{ app_port }} est maintenant ouvert. L'application est accessible sur http://{{ public_ip_info.publicipaddresses[0].ip_address }}:{{ app_port }}"
+
