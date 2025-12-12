@@ -6,7 +6,6 @@
 
   collections:
     - community.docker
-    - ansible.posix
 
   vars:
     project_name: fcMarmelade
@@ -111,14 +110,7 @@
           com.marmelade.description: "Site web de vente de marmelades"
           com.marmelade.version: "1.0"
 
-    # 8. Configuration du firewall et message final
-    - name: Configuration du firewall UFW
-      ansible.posix.ufw:
-        rule: allow
-        port: "{{ host_port }}"
-        proto: tcp
-      ignore_errors: true
-
+    # 8. Message de succès
     - name: Message de succès
       debug:
         msg: "✅ L'application est déployée et accessible sur http://{{ ansible_host }}:{{ host_port }}"
