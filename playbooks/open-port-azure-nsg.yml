@@ -57,25 +57,36 @@
         state: present
       when: nsg_created is defined and nsg_created.changed
 
-    # 6. Ajout de la règle de sécurité pour le port de l'application
-    - name: Ajout de la règle de sécurité pour le port {{ app_port }}
-      azure_rm_securityrule:
-        resource_group: "{{ rg_name }}"
-        security_group_name: "{{ nsg_name }}"
-        name: "{{ nsg_rule_name }}"
-        protocol: Tcp
-        source_port_ranges:
-          - "*"
-        destination_port_ranges:
-          - "{{ app_port }}"
-        source_address_prefix: "*"
-        destination_address_prefix: "*"
-        access: Allow
-        priority: "{{ nsg_rule_priority }}"
-        direction: Inbound
-        state: present
+    # 6. Vérification si la règle existe déjà
+    - name: Vérification de l'existence de la règle
+      command: >
+        az network nsg rule show
+        --resource-group {{ rg_name }}
+        --nsg-name {{ nsg_name }}
+        --name {{ nsg_rule_name }}
+      register: check_rule
+      failed_when: false
+      changed_when: false
 
-    # 7. Récupération de l'IP publique pour affichage
+    # 7. Ajout de la règle de sécurité pour le port de l'application
+    - name: Ajout de la règle de sécurité pour le port {{ app_port }}
+      command: >
+        az network nsg rule create
+        --resource-group {{ rg_name }}
+        --nsg-name {{ nsg_name }}
+        --name {{ nsg_rule_name }}
+        --protocol Tcp
+        --priority {{ nsg_rule_priority }}
+        --direction Inbound
+        --access Allow
+        --source-address-prefixes "*"
+        --source-port-ranges "*"
+        --destination-address-prefixes "*"
+        --destination-port-ranges {{ app_port }}
+      when: check_rule.rc != 0
+      register: nsg_rule_result
+
+    # 8. Récupération de l'IP publique pour affichage
     - name: Récupération de l'IP publique
       azure_rm_publicipaddress_info:
         resource_group: "{{ rg_name }}"
