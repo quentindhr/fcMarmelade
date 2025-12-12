@@ -21,34 +21,34 @@
     nsg_rule_priority: 1000
 
   tasks:
-    # 1. Récupération de la Network Interface pour trouver le NSG
-    - name: Récupération de la Network Interface
-      azure_rm_networkinterface_info:
-        resource_group: "{{ rg_name }}"
-        name: "{{ nic_name }}"
-      register: nic_info
+    # 1. Récupération du NSG associé à la Network Interface via Azure CLI
+    - name: Récupération du NSG associé à la NIC
+      command: >
+        az network nic show
+        --resource-group {{ rg_name }}
+        --name {{ nic_name }}
+        --query networkSecurityGroup.id
+        --output tsv
+      register: nsg_id_result
+      failed_when: false
+      changed_when: false
 
-    # 2. Vérification si un NSG est associé
-    - name: Vérification du NSG associé
-      debug:
-        msg: "NSG trouvé : {{ nic_info.interfaces[0].network_security_group.id | default('Aucun NSG trouvé') }}"
-      when: nic_info.interfaces | length > 0
-
-    # 3. Détermination du NSG à utiliser
-    - name: Définition du nom du NSG
+    # 2. Extraction du nom du NSG depuis l'ID
+    - name: Extraction du nom du NSG
       set_fact:
-        nsg_name: "{{ nic_info.interfaces[0].network_security_group.name if (nic_info.interfaces | length > 0 and nic_info.interfaces[0].network_security_group is defined) else (nic_name + '-nsg') }}"
+        nsg_name: "{{ (nsg_id_result.stdout | default('')).split('/')[-1] if nsg_id_result.rc == 0 and nsg_id_result.stdout else (nic_name + '-nsg') }}"
+        nsg_exists: "{{ nsg_id_result.rc == 0 and nsg_id_result.stdout | length > 0 }}"
 
-    # 4. Création du NSG si absent
+    # 3. Création du NSG si absent
     - name: Création du NSG si absent
       azure_rm_securitygroup:
         resource_group: "{{ rg_name }}"
         name: "{{ nsg_name }}"
         location: "{{ rg_location }}"
       register: nsg_created
-      when: nic_info.interfaces | length == 0 or nic_info.interfaces[0].network_security_group is not defined
+      when: not nsg_exists | bool
 
-    # 5. Association du NSG à la NIC si nécessaire
+    # 4. Association du NSG à la NIC si nécessaire
     - name: Association du NSG à la Network Interface
       azure_rm_networkinterface:
         resource_group: "{{ rg_name }}"
