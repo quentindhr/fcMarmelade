@@ -7,15 +7,22 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Bouton de changement de langue -->
+    <div class="lang-switcher">
+        <button class="lang-btn" id="lang-toggle" onclick="changeLanguage(currentLanguage === 'fr' ?  'en' : 'fr')">
+            🇬🇧 EN
+        </button>
+    </div>
+
     <header>
         <nav>
             <div class="nav-container">
                 <h1 class="logo">🍊 Les Marmelades d'Antan</h1>
                 <ul class="nav-links">
-                    <li><a href="index.html" class="active">Accueil</a></li>
-                    <li><a href="produits.html">Nos Produits</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="admin.html">Admin</a></li>
+                    <li><a href="index.html" class="active" data-i18n="nav_home">Accueil</a></li>
+                    <li><a href="produits.html" data-i18n="nav_products">Nos Produits</a></li>
+                    <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+                    <li><a href="admin. html" data-i18n="nav_admin">Admin</a></li>
                 </ul>
             </div>
         </nav>
@@ -24,31 +31,31 @@
     <main>
         <section class="hero">
             <div class="hero-content">
-                <h2>Marmelades Artisanales</h2>
-                <p class="hero-subtitle">Fabriquées avec passion depuis 1985</p>
-                <p>Découvrez nos confitures et marmelades préparées à l'ancienne, avec des fruits sélectionnés et des recettes traditionnelles.</p>
-                <a href="produits.html" class="btn-primary">Découvrir nos produits</a>
+                <h2 data-i18n="home_title">Marmelades Artisanales</h2>
+                <p class="hero-subtitle" data-i18n="home_subtitle">Fabriquées avec passion depuis 1985</p>
+                <p data-i18n="home_description">Découvrez nos confitures et marmelades préparées à l'ancienne, avec des fruits sélectionnés et des recettes traditionnelles.</p>
+                <a href="produits.html" class="btn-primary" data-i18n="home_cta">Découvrir nos produits</a>
             </div>
         </section>
 
         <section class="features">
             <div class="container">
-                <h2 class="section-title">Notre Savoir-Faire</h2>
+                <h2 class="section-title" data-i18n="savoir_faire_title">Notre Savoir-Faire</h2>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">🍓</div>
-                        <h3>Fruits Frais</h3>
-                        <p>Nous sélectionnons les meilleurs fruits de saison, issus de producteurs locaux.</p>
+                        <h3 data-i18n="feature_fruits_title">Fruits Frais</h3>
+                        <p data-i18n="feature_fruits_desc">Nous sélectionnons les meilleurs fruits de saison, issus de producteurs locaux.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">👨‍🍳</div>
-                        <h3>Recettes Traditionnelles</h3>
-                        <p>Des méthodes artisanales transmises de génération en génération.</p>
+                        <h3 data-i18n="feature_recipe_title">Recettes Traditionnelles</h3>
+                        <p data-i18n="feature_recipe_desc">Des méthodes artisanales transmises de génération en génération. </p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">✨</div>
-                        <h3>100% Naturel</h3>
-                        <p>Sans colorants ni conservateurs artificiels.  Que du bon ! </p>
+                        <h3 data-i18n="feature_natural_title">100% Naturel</h3>
+                        <p data-i18n="feature_natural_desc">Sans colorants ni conservateurs artificiels. Que du bon ! </p>
                     </div>
                 </div>
             </div>
@@ -56,27 +63,27 @@
 
         <section class="specialties">
             <div class="container">
-                <h2 class="section-title">Nos Spécialités</h2>
+                <h2 class="section-title" data-i18n="specialties_title">Nos Spécialités</h2>
                 <div class="specialty-list">
                     <div class="specialty-item">
                         <span class="specialty-emoji">🍊</span>
-                        <span>Marmelade d'Oranges Amères</span>
+                        <span data-i18n="specialty_orange">Marmelade d'Oranges Amères</span>
                     </div>
                     <div class="specialty-item">
                         <span class="specialty-emoji">🍑</span>
-                        <span>Confiture d'Abricots</span>
+                        <span data-i18n="specialty_apricot">Confiture d'Abricots</span>
                     </div>
                     <div class="specialty-item">
                         <span class="specialty-emoji">🍓</span>
-                        <span>Gelée de Fraises</span>
+                        <span data-i18n="specialty_strawberry">Gelée de Fraises</span>
                     </div>
                     <div class="specialty-item">
                         <span class="specialty-emoji">🍋</span>
-                        <span>Marmelade de Citrons</span>
+                        <span data-i18n="specialty_lemon">Marmelade de Citrons</span>
                     </div>
                 </div>
                 <div class="cta-center">
-                    <a href="produits.html" class="btn-secondary">Voir tous nos produits</a>
+                    <a href="produits.html" class="btn-secondary" data-i18n="view_all">Voir tous nos produits</a>
                 </div>
             </div>
         </section>
@@ -84,9 +91,11 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 Les Marmelades d'Antan - Tous droits réservés</p>
-            <p>Fait avec ❤️ et beaucoup de fruits</p>
+            <p>&copy; 2025 Les Marmelades d'Antan - <span data-i18n="footer_rights">Tous droits réservés</span></p>
+            <p data-i18n="footer_made">Fait avec ❤️ et beaucoup de fruits</p>
         </div>
     </footer>
+
+    <script src="translations.js"></script>
 </body>
 </html>

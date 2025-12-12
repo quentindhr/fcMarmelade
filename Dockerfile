@@ -14,6 +14,7 @@ COPY admin.html /usr/share/nginx/html/
 COPY style.css /usr/share/nginx/html/
 COPY admin-style.css /usr/share/nginx/html/
 COPY admin-script.js /usr/share/nginx/html/
+COPY translations.js /usr/share/nginx/html/
 
 # Exposer le port 80
 EXPOSE 80

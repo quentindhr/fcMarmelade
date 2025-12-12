@@ -502,3 +502,37 @@ footer p {
         padding: 1.5rem;
     }
 }
+
+/* Language Switcher */
+.lang-switcher {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 999;
+}
+
+.lang-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius:  25px;
+    cursor:  pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+@media (max-width: 768px) {
+    .lang-switcher {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+    }
+}
