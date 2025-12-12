@@ -58,6 +58,7 @@
       pip:
         name: docker
         state: present
+        extra_args: --break-system-packages
 
     # 4. Configuration et démarrage de Docker
     - name: Démarrage et activation de Docker
