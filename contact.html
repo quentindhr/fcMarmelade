@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Marmelades Artisanales</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1 class="logo">🍊 Les Marmelades d'Antan</h1>
+                <ul class="nav-links">
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="produits.html">Nos Produits</a></li>
+                    <li><a href="contact.html" class="active">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h2>Nous Contacter</h2>
+                <p>Une question ?  Une commande ? N'hésitez pas à nous contacter !</p>
+            </div>
+        </section>
+
+        <section class="contact-content">
+            <div class="container">
+                <div class="contact-grid">
+                    
+                    <div class="contact-info">
+                        <h3>📍 Notre Atelier</h3>
+                        <div class="contact-card">
+                            <p><strong>Les Marmelades d'Antan</strong></p>
+                            <p>12 Rue des Vergers</p>
+                            <p>84000 Avignon</p>
+                            <p>France</p>
+                        </div>
+
+                        <h3>📞 Coordonnées</h3>
+                        <div class="contact-card">
+                            <p><strong>Téléphone:</strong></p>
+                            <p><a href="tel:+33490123456">04 90 12 34 56</a></p>
+                            <br>
+                            <p><strong>Email:</strong></p>
+                            <p><a href="mailto:contact@marmelades-antan.fr">contact@marmelades-antan.fr</a></p>
+                        </div>
+
+                        <h3>🕒 Horaires d'Ouverture</h3>
+                        <div class="contact-card">
+                            <table class="hours-table">
+                                <tr>
+                                    <td><strong>Lundi - Vendredi</strong></td>
+                                    <td>9h00 - 18h00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Samedi</strong></td>
+                                    <td>9h00 - 13h00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dimanche</strong></td>
+                                    <td>Fermé</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <h3>🚗 Accès</h3>
+                        <div class="contact-card">
+                            <p><strong>En voiture:</strong> Parking gratuit disponible</p>
+                            <p><strong>En bus:</strong> Ligne 5, arrêt "Les Vergers"</p>
+                            <p><strong>À pied:</strong> 10 min depuis le centre-ville</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-form-section">
+                        <h3>💌 Envoyez-nous un message</h3>
+                        <form class="contact-form" action="#" method="post">
+                            <div class="form-group">
+                                <label for="name">Nom *</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Téléphone</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject">Sujet</label>
+                                <select id="subject" name="subject">
+                                    <option value="commande">Commande</option>
+                                    <option value="info">Demande d'information</option>
+                                    <option value="visite">Visite de l'atelier</option>
+                                    <option value="autre">Autre</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message *</label>
+                                <textarea id="message" name="message" rows="6" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-primary">Envoyer le message</button>
+                            
+                            <p class="form-note">* Champs obligatoires</p>
+                        </form>
+
+                        <div class="info-box" style="margin-top: 2rem;">
+                            <h4>🎁 Commandes & Livraisons</h4>
+                            <p>Pour toute commande, merci de nous contacter par téléphone ou email. Nous proposons: </p>
+                            <ul>
+                                <li>Livraison dans toute la France (frais de port selon poids)</li>
+                                <li>Retrait gratuit à l'atelier</li>
+                                <li>Remises pour les commandes importantes</li>
+                                <li>Paniers cadeaux personnalisés</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Les Marmelades d'Antan - Tous droits réservés</p>
+            <p>Fait avec ❤️ et beaucoup de fruits</p>
+        </div>
+    </footer>
+</body>
+</html>

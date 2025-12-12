@@ -1,0 +1,25 @@
+# Fichiers Git
+. git
+.gitignore
+
+# Documentation
+README.md
+
+# Fichiers Ansible
+playbook.yml
+inventory.ini
+*. retry
+
+# Fichiers de développement
+.vscode
+.idea
+*.log
+
+# Fichiers système
+. DS_Store
+Thumbs. db
+
+# Docker
+docker-compose.yml
+Dockerfile
+. dockerignore
