@@ -36,7 +36,7 @@
         location: "{{ rg_location }}"
         rules:
           - name: "{{ nsg_rule_name }}"
-            protocol: any
+            protocol: Tcp
             source_port_range: "*"
             destination_port_range: "{{ app_port }}"
             source_address_prefix: "*"
