@@ -536,3 +536,24 @@ footer p {
         right: 20px;
     }
 }
+
+.logo-img {
+    height: 50px; /* Ajustez la taille selon vos besoins */
+    width: auto;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+/* Alternative :  logo centré */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Pour un logo plus grand sur mobile */
+@media (max-width: 768px) {
+    .logo-img {
+        height: 40px;
+    }
+}

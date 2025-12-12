@@ -16,6 +16,13 @@ COPY admin-style.css /usr/share/nginx/html/
 COPY admin-script.js /usr/share/nginx/html/
 COPY translations.js /usr/share/nginx/html/
 
+# Copier les images
+COPY images /usr/share/nginx/html/images
+
+# Corriger les permissions (IMPORTANT)
+RUN chmod -R 755 /usr/share/nginx/html && \
+    chown -R nginx:nginx /usr/share/nginx/html
+
 # Exposer le port 80
 EXPOSE 80
 
