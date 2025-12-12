@@ -1,0 +1,7 @@
+---
+# Collections Ansible requises pour le projet
+collections:
+  - name: azure.azcollection
+    version: ">=1.0.0"
+  - name: community.docker
+    version: ">=3.0.0"

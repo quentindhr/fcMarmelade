@@ -52,16 +52,54 @@ docker-compose restart
 
 ## 🚢 Déploiement avec Ansible
 
-### 1. Configurer l'inventaire
+### Déploiement sur Azure (recommandé)
+
+#### 1. Installer les collections Ansible requises
+
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
+
+#### 2. Créer la VM Azure avec IP publique
+
+```bash
+ansible-playbook playbooks/create-public-vm-azure.yml
+```
+
+Ce playbook crée :
+- Un groupe de ressources Azure
+- Un réseau virtuel et un sous-réseau
+- Une IP publique statique
+- Une machine virtuelle Ubuntu avec IP publique
+
+#### 3. Déployer l'application sur la VM Azure
+
+```bash
+ansible-playbook playbooks/deploy-app-to-azure-vm.yml
+```
+
+Ce playbook :
+- Récupère automatiquement l'IP publique de la VM
+- Installe Docker via les modules Ansible (collection `community.docker`)
+- Clone le projet depuis GitHub
+- Build l'image Docker avec `docker_image`
+- Lance le conteneur avec `docker_container`
+- Configure le firewall
+
+L'application sera accessible sur `http://<IP_PUBLIQUE>:8080`
+
+### Déploiement sur serveur existant
+
+#### 1. Configurer l'inventaire
 
 Éditez le fichier `inventory.ini` et ajoutez vos serveurs : 
 
 ```ini
 [webservers]
-votre-serveur. com ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+votre-serveur.com ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
 ```
 
-### 2. Lancer le déploiement
+#### 2. Lancer le déploiement
 
 ```bash
 ansible-playbook -i inventory.ini playbook.yml
@@ -83,16 +121,19 @@ Le playbook va :
 
 ```
 fcMarmelade/
-├── index.html          # Page d'accueil
-├── produits.html       # Catalogue des produits
-├── contact.html        # Page de contact
-├── style.css           # Feuille de style
-├── Dockerfile          # Configuration Docker
-├── docker-compose. yml  # Orchestration Docker
-├── playbook.yml        # Playbook Ansible
-├── inventory. ini       # Inventaire Ansible
-├── . dockerignore       # Fichiers exclus du build
-└── README.md           # Documentation
+├── index.html                    # Page d'accueil
+├── produits.html                  # Catalogue des produits
+├── contact.html                   # Page de contact
+├── style.css                      # Feuille de style
+├── Dockerfile                     # Configuration Docker
+├── docker-compose.yml             # Orchestration Docker
+├── playbook.yml                   # Playbook Ansible (serveur existant)
+├── requirements.yml               # Collections Ansible requises
+├── inventory.ini                  # Inventaire Ansible
+├── playbooks/
+│   ├── create-public-vm-azure.yml    # Création VM Azure
+│   └── deploy-app-to-azure-vm.yml    # Déploiement sur Azure
+└── README.md                      # Documentation
 ```
 
 ## 🎨 Personnalisation

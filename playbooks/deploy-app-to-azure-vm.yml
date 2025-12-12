@@ -1,0 +1,225 @@
+---
+- name: Déploiement de l'application Docker sur la VM Azure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  collections:
+    - azure.azcollection
+    - community.docker
+
+  vars:
+    # Variables Azure (doivent correspondre au playbook de création)
+    rg_name: Groupe5ResourceGroup
+    public_ip_name: Groupe5PublicIP
+    vm_name: Groupe5VM
+    admin_user: azuremerlus
+    admin_password: "Groupe5Merlu$"
+
+    # Variables du projet
+    project_name: fcMarmelade
+    project_dir: /opt/{{ project_name }}
+    repository_url: https://github.com/quentindhr/fcMarmelade.git
+    container_name: marmelade-shop
+    container_image: marmelade-shop:latest
+    container_port: 8080
+    host_port: 8080
+
+  tasks:
+    # 1. Récupération de l'IP publique de la VM
+    - name: Récupération de l'IP publique
+      azure_rm_publicipaddress_info:
+        resource_group: "{{ rg_name }}"
+        name: "{{ public_ip_name }}"
+      register: public_ip_info
+
+    - name: Affichage de l'IP publique
+      debug:
+        msg: "IP publique de la VM : {{ public_ip_info.publicipaddresses[0].ip_address }}"
+
+    - name: Définition de l'IP publique dans les variables
+      set_fact:
+        vm_public_ip: "{{ public_ip_info.publicipaddresses[0].ip_address }}"
+
+    # 2. Attente que la VM soit accessible via SSH
+    - name: Attente que la VM soit accessible via SSH
+      wait_for:
+        host: "{{ vm_public_ip }}"
+        port: 22
+        delay: 10
+        timeout: 300
+      delegate_to: localhost
+
+    # 3. Ajout de la VM à l'inventaire dynamique
+    - name: Ajout de la VM à l'inventaire
+      add_host:
+        name: azure_vm
+        ansible_host: "{{ vm_public_ip }}"
+        ansible_user: "{{ admin_user }}"
+        ansible_password: "{{ admin_password }}"
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+        ansible_python_interpreter: /usr/bin/python3
+
+- name: Installation et déploiement sur la VM Azure
+  hosts: azure_vm
+  become: true
+  gather_facts: true
+
+  collections:
+    - community.docker
+
+  vars:
+    project_name: fcMarmelade
+    project_dir: /opt/{{ project_name }}
+    repository_url: https://github.com/quentindhr/fcMarmelade.git
+    container_name: marmelade-shop
+    container_image: marmelade-shop:latest
+    container_port: 8080
+    host_port: 8080
+
+  tasks:
+    # 1. Mise à jour du cache APT
+    - name: Mise à jour du cache APT
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    # 2. Installation des dépendances système
+    - name: Installation des dépendances
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - git
+          - python3-pip
+        state: present
+
+    # 3. Ajout de la clé GPG Docker
+    - name: Ajout de la clé GPG Docker
+      shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg
+
+    # 4. Ajout du dépôt Docker
+    - name: Ajout du dépôt Docker
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    # 5. Mise à jour du cache APT après ajout du dépôt
+    - name: Mise à jour du cache APT après ajout du dépôt Docker
+      apt:
+        update_cache: yes
+
+    # 6. Installation de Docker
+    - name: Installation de Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    # 7. Installation du SDK Docker pour Python
+    - name: Installation du SDK Docker pour Python
+      pip:
+        name:
+          - docker
+          - docker-compose
+        state: present
+
+    # 8. Démarrage et activation de Docker
+    - name: Démarrage et activation de Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    # 9. Ajout de l'utilisateur au groupe docker
+    - name: Ajout de l'utilisateur au groupe docker
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    # 10. Création du répertoire du projet
+    - name: Création du répertoire du projet
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        mode: '0755'
+
+    # 11. Clonage du dépôt Git
+    - name: Clonage du dépôt Git
+      git:
+        repo: "{{ repository_url }}"
+        dest: "{{ project_dir }}"
+        version: main
+        force: yes
+
+    # 12. Arrêt et suppression du conteneur existant s'il existe
+    - name: Arrêt du conteneur existant
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+      ignore_errors: true
+
+    # 13. Suppression de l'image existante si elle existe
+    - name: Suppression de l'image existante
+      docker_image:
+        name: "{{ container_image }}"
+        state: absent
+      ignore_errors: true
+
+    # 14. Build de l'image Docker depuis le Dockerfile
+    - name: Build de l'image Docker
+      docker_image:
+        name: "{{ container_image }}"
+        build:
+          path: "{{ project_dir }}"
+          dockerfile: Dockerfile
+        source: build
+        state: present
+        force_source: yes
+
+    # 15. Création et démarrage du conteneur
+    - name: Création et démarrage du conteneur
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ container_image }}"
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "{{ host_port }}:{{ container_port }}"
+        labels:
+          com.marmelade.description: "Site web de vente de marmelades"
+          com.marmelade.version: "1.0"
+
+    # 16. Vérification que le conteneur est actif
+    - name: Vérification que le conteneur est actif
+      docker_container_info:
+        name: "{{ container_name }}"
+      register: container_info
+
+    - name: Affichage du statut du conteneur
+      debug:
+        msg: "Conteneur {{ container_name }} - État : {{ container_info.container.State.Status }}"
+
+    # 17. Configuration du firewall (UFW)
+    - name: Configuration du firewall UFW
+      ufw:
+        rule: allow
+        port: "{{ host_port }}"
+        proto: tcp
+      ignore_errors: true
+
+    # 18. Affichage du message de succès
+    - name: Affichage du message de succès
+      debug:
+        msg: "✅ L'application est déployée et accessible sur http://{{ ansible_host }}:{{ host_port }}"
+
