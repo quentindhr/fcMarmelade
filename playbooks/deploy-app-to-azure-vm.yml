@@ -6,6 +6,7 @@
 
   collections:
     - community.docker
+    - ansible.posix
 
   vars:
     project_name: fcMarmelade
@@ -112,7 +113,7 @@
 
     # 8. Configuration du firewall et message final
     - name: Configuration du firewall UFW
-      ufw:
+      ansible.posix.ufw:
         rule: allow
         port: "{{ host_port }}"
         proto: tcp
