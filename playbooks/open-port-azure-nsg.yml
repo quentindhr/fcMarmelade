@@ -38,6 +38,7 @@
       set_fact:
         nsg_name: "{{ (nsg_id_result.stdout | default('')).split('/')[-1] if nsg_id_result.rc == 0 and nsg_id_result.stdout else (nic_name + '-nsg') }}"
         nsg_exists: "{{ nsg_id_result.rc == 0 and nsg_id_result.stdout | length > 0 }}"
+        nsg_associated: "{{ nsg_id_result.rc == 0 and nsg_id_result.stdout | length > 0 }}"
 
     # 3. Création du NSG si absent
     - name: Création du NSG si absent
@@ -50,12 +51,13 @@
 
     # 4. Association du NSG à la NIC si nécessaire
     - name: Association du NSG à la Network Interface
-      azure_rm_networkinterface:
-        resource_group: "{{ rg_name }}"
-        name: "{{ nic_name }}"
-        network_security_group: "{{ nsg_name }}"
-        state: present
-      when: nsg_created is defined and nsg_created.changed
+      command: >
+        az network nic update
+        --resource-group {{ rg_name }}
+        --name {{ nic_name }}
+        --network-security-group {{ nsg_name }}
+      when: not nsg_associated | bool
+      register: nsg_association
 
     # 6. Vérification si la règle existe déjà
     - name: Vérification de l'existence de la règle
