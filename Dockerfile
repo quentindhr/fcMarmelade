@@ -16,7 +16,7 @@ COPY style.css /usr/share/nginx/html/
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 # Exposer le port 80
-EXPOSE 80
+EXPOSE 8080
 
 # Démarrer Nginx (CMD par défaut de l'image nginx: alpine)
 CMD ["nginx", "-g", "daemon off;"]
