@@ -1,0 +1,98 @@
+---
+- name: Create Azure VM with Public IP
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  collections:
+    - azure.azcollection
+
+  vars:
+    # Resource Group
+    rg_name: Groupe5ResourceGroup
+    rg_location: westeurope
+
+    # Virtual Network / Subnet
+    vnet_name: Groupe5VNet
+    vnet_prefix: "10.0.0.0/16"
+    subnet_name: Groupe5Subnet
+    subnet_prefix: "10.0.1.0/24"
+
+    # Public IP
+    public_ip_name: Groupe5PublicIP
+    public_ip_allocation: Static
+    public_ip_sku: Standard
+
+    # Network Interface
+    nic_name: Groupe5NIC
+    ipconfig_name: ipconfig1
+
+    # Virtual Machine
+    vm_name: Groupe5VM
+    vm_size: Standard_B2s
+    admin_user: azuremerlus
+    admin_password: "Groupe5Merlu$"
+
+    # Image
+    vm_image_publisher: Canonical
+    vm_image_offer: ubuntu-24_04-lts
+    vm_image_sku: "server-gen1"
+    vm_image_version: latest
+
+  tasks:
+    # 1. Resource Group
+    - name: Create resource group
+      azure_rm_resourcegroup:
+        name: "{{ rg_name }}"
+        location: "{{ rg_location }}"
+
+    # 2. Virtual Network
+    - name: Create virtual network
+      azure_rm_virtualnetwork:
+        resource_group: "{{ rg_name }}"
+        name: "{{ vnet_name }}"
+        address_prefixes: "{{ vnet_prefix }}"
+
+    # 3. Subnet
+    - name: Create subnet
+      azure_rm_subnet:
+        resource_group: "{{ rg_name }}"
+        name: "{{ subnet_name }}"
+        address_prefix: "{{ subnet_prefix }}"
+        virtual_network: "{{ vnet_name }}"
+
+    # 4. Public IP
+    - name: Create public IP
+      azure_rm_publicipaddress:
+        resource_group: "{{ rg_name }}"
+        allocation_method: "{{ public_ip_allocation }}"
+        sku: "{{ public_ip_sku }}"
+        name: "{{ public_ip_name }}"
+
+    # 5. Network Interface
+    - name: Create NIC
+      azure_rm_networkinterface:
+        resource_group: "{{ rg_name }}"
+        name: "{{ nic_name }}"
+        location: "{{ rg_location }}"
+        virtual_network: "{{ vnet_name }}"
+        subnet_name: "{{ subnet_name }}"
+        ip_configurations:
+          - name: "{{ ipconfig_name }}"
+            public_ip_address_name: "{{ public_ip_name }}"
+
+    # 6. Virtual Machine
+    - name: Create virtual machine
+      azure_rm_virtualmachine:
+        resource_group: "{{ rg_name }}"
+        name: "{{ vm_name }}"
+        vm_size: "{{ vm_size }}"
+        admin_username: "{{ admin_user }}"
+        admin_password: "{{ admin_password }}"
+        network_interfaces: "{{ nic_name }}"
+        image:
+          publisher: "{{ vm_image_publisher }}"
+          offer: "{{ vm_image_offer }}"
+          sku: "{{ vm_image_sku }}"
+          version: "{{ vm_image_version }}"
+        state: present
