@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Marmelades Artisanales</title>
+    <link rel="stylesheet" href="style. css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1 class="logo">🍊 Les Marmelades d'Antan - Admin</h1>
+                <ul class="nav-links">
+                    <li><a href="index.html">Retour au site</a></li>
+                    <li><a href="admin.html" class="active">Dashboard</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <h2 class="admin-title">📊 Tableau de bord administrateur</h2>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>Utilisateurs connectés</h3>
+                        <p class="stat-number" id="connected-users">0</p>
+                        <span class="stat-label">visiteurs actifs</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🖥️</div>
+                    <div class="stat-content">
+                        <h3>Machines Virtuelles</h3>
+                        <p class="stat-number" id="vm-count">0</p>
+                        <span class="stat-label">VM actives</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-content">
+                        <h3>Produits en ligne</h3>
+                        <p class="stat-number">6</p>
+                        <span class="stat-label">marmelades</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🔄</div>
+                    <div class="stat-content">
+                        <h3>Statut du site</h3>
+                        <p class="stat-status online">● En ligne</p>
+                        <span class="stat-label">Dernière MAJ :  <span id="last-update">--: --</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VM Management Section -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>🖥️ Gestion des Machines Virtuelles</h3>
+                    <button class="btn-primary" onclick="openAddVmModal()">+ Ajouter une VM</button>
+                </div>
+
+                <div class="vm-list" id="vm-list">
+                    <!-- Les VMs seront ajoutées ici dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Connected Users Section -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>👥 Utilisateurs connectés en temps réel</h3>
+                    <button class="btn-secondary" onclick="refreshUsers()">🔄 Rafraîchir</button>
+                </div>
+
+                <div class="users-table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID Session</th>
+                                <th>Page actuelle</th>
+                                <th>Durée de visite</th>
+                                <th>Navigateur</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>📝 Journal d'activité</h3>
+                    <button class="btn-secondary" onclick="clearLogs()">🗑️ Effacer</button>
+                </div>
+
+                <div class="activity-log" id="activity-log">
+                    <!-- Les logs seront ajoutés ici dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal pour ajouter une VM -->
+    <div id="vm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ajouter une Machine Virtuelle</h3>
+                <span class="close" onclick="closeAddVmModal()">&times;</span>
+            </div>
+            <form id="vm-form" onsubmit="addVM(event)">
+                <div class="form-group">
+                    <label for="vm-name">Nom de la VM *</label>
+                    <input type="text" id="vm-name" required placeholder="ex: marmelade-web-01">
+                </div>
+
+                <div class="form-group">
+                    <label for="vm-os">Système d'exploitation *</label>
+                    <select id="vm-os" required>
+                        <option value="">Sélectionnez un OS</option>
+                        <option value="Ubuntu 22.04">Ubuntu 22.04 LTS</option>
+                        <option value="Ubuntu 20.04">Ubuntu 20.04 LTS</option>
+                        <option value="Debian 12">Debian 12</option>
+                        <option value="Debian 11">Debian 11</option>
+                        <option value="CentOS 8">CentOS 8</option>
+                        <option value="Alpine Linux">Alpine Linux</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vm-cpu">CPU (cores) *</label>
+                        <input type="number" id="vm-cpu" required min="1" max="32" value="2">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vm-ram">RAM (GB) *</label>
+                        <input type="number" id="vm-ram" required min="1" max="128" value="4">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vm-disk">Disque (GB) *</label>
+                        <input type="number" id="vm-disk" required min="10" max="1000" value="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vm-ip">Adresse IP</label>
+                    <input type="text" id="vm-ip" placeholder="ex: 192.168.1.100" pattern="^(\d{1,3}\.){3}\d{1,3}$">
+                </div>
+
+                <div class="form-group">
+                    <label for="vm-description">Description</label>
+                    <textarea id="vm-description" rows="3" placeholder="Description de la VM... "></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddVmModal()">Annuler</button>
+                    <button type="submit" class="btn-primary">Créer la VM</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Les Marmelades d'Antan - Panel Administrateur</p>
+        </div>
+    </footer>
+
+    <script src="admin-script.js"></script>
+</body>
+</html>
