@@ -103,21 +103,21 @@
 
     # 12. Arrêt et suppression du conteneur existant s'il existe
     - name: Arrêt du conteneur existant
-      docker_container:
+      community.docker.docker_container:
         name: "{{ container_name }}"
         state: absent
       ignore_errors: true
 
     # 13. Suppression de l'image existante si elle existe
     - name: Suppression de l'image existante
-      docker_image:
+      community.docker.docker_image:
         name: "{{ container_image }}"
         state: absent
       ignore_errors: true
 
     # 14. Build de l'image Docker depuis le Dockerfile
     - name: Build de l'image Docker
-      docker_image:
+      community.docker.docker_image:
         name: "{{ container_image }}"
         build:
           path: "{{ project_dir }}"
@@ -128,7 +128,7 @@
 
     # 15. Création et démarrage du conteneur
     - name: Création et démarrage du conteneur
-      docker_container:
+      community.docker.docker_container:
         name: "{{ container_name }}"
         image: "{{ container_image }}"
         state: started
@@ -141,7 +141,7 @@
 
     # 16. Vérification que le conteneur est actif
     - name: Vérification que le conteneur est actif
-      docker_container_info:
+      community.docker.docker_container_info:
         name: "{{ container_name }}"
       register: container_info
 
