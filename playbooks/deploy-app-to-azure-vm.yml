@@ -7,6 +7,16 @@
   collections:
     - community.docker
 
+  pre_tasks:
+    # installation des collections ansible nécessaires
+    - name: installation de la collection community.docker
+      ansible.builtin.command:
+        cmd: ansible-galaxy collection install community.docker:>=3.0.0
+      delegate_to: localhost
+      run_once: true
+      changed_when: false
+      failed_when: false
+
   vars:
     project_name: fcMarmelade
     project_dir: /opt/{{ project_name }}
