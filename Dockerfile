@@ -9,7 +9,7 @@ LABEL version="1.0"
 # Copier TOUS les fichiers HTML/CSS/JS dans le répertoire Nginx
 COPY index.html /usr/share/nginx/html/
 COPY produits.html /usr/share/nginx/html/
-COPY contact. html /usr/share/nginx/html/
+COPY contact.html /usr/share/nginx/html/
 COPY admin.html /usr/share/nginx/html/
 COPY style.css /usr/share/nginx/html/
 COPY admin-style.css /usr/share/nginx/html/
